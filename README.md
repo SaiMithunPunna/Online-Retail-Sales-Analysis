@@ -46,10 +46,8 @@ Keeps track of which products are in each order.
 
 ## Analysis Queries
 
-1. **Top Selling Products**
-   ```sql
-   select p.name, sum(oi.quantity) as total_sold
-   from Order_Items oi
-   join Products p on oi.product_id = p.product_id
-   group by p.name
-   order by total_sold desc;
+Top Selling Products
+Most Valuable Customers
+Monthly Revenue
+Category-wise Sales
+Inactive Customers
