@@ -1,69 +1,70 @@
--- Create Database
-CREATE DATABASE retail_db;
-USE retail_db;
+-- create new database
+
+create database retail_db;
+use retail_db;
 
 
--- TABLE CREATION
 
+-- creating required tables
 
-CREATE TABLE Customers (
-    customer_id INT PRIMARY KEY,
-    name VARCHAR(100),
-    city VARCHAR(50)
+create table Customers (
+    customer_id int primary key,
+    name varchar(100),
+    city varchar(50)
 );
 
-CREATE TABLE Products (
-    product_id INT PRIMARY KEY,
-    name VARCHAR(100),
-    category VARCHAR(50),
-    price DECIMAL(10,2)
+create table Products (
+    product_id int primary key,
+    name varchar(100),
+    category varchar(50),
+    price decimal(10,2)
 );
 
-CREATE TABLE Orders (
-    order_id INT PRIMARY KEY,
-    customer_id INT,
-    date DATE,
-    FOREIGN KEY (customer_id) REFERENCES Customers(customer_id)
+create table Orders (
+    order_id int primary key,
+    customer_id int,
+    order_date date,
+    foreign key (customer_id) references Customers(customer_id)
 );
 
-CREATE TABLE Order_Items (
-    order_id INT,
-    product_id INT,
-    quantity INT,
-    FOREIGN KEY (order_id) REFERENCES Orders(order_id),
-    FOREIGN KEY (product_id) REFERENCES Products(product_id)
+create table Order_Items (
+    order_id int,
+    product_id int,
+    quantity int,
+    foreign key (order_id) references Orders(order_id),
+    foreign key (product_id) references Products(product_id)
 );
 
--- =========================
--- INSERT SAMPLE DATA
--- =========================
 
--- Customers
-INSERT INTO Customers VALUES
+
+-- inserting the data 
+
+-- Customers table
+insert into Customers values
 (1, 'Sai', 'Mumbai'),
 (2, 'Rahul', 'Delhi'),
 (3, 'Priya', 'Bangalore'),
 (4, 'Ankit', 'Pune'),
 (5, 'Neha', 'Chennai');
 
--- Products
-INSERT INTO Products VALUES
+-- Products table
+insert into Products values
 (101, 'Laptop', 'Electronics', 50000),
 (102, 'Phone', 'Electronics', 20000),
 (103, 'Shoes', 'Fashion', 3000),
 (104, 'Watch', 'Fashion', 5000),
 (105, 'Book', 'Education', 500);
 
--- Orders
-INSERT INTO Orders VALUES
+-- Orders table
+insert into Orders values
 (1001, 1, '2025-03-01'),
 (1002, 2, '2025-03-05'),
 (1003, 1, '2025-03-10'),
 (1004, 3, '2025-04-01'),
 (1005, 4, '2025-04-03');
 
--- Order Items
-INSERT INTO Order_Items VALUES
+-- Order items table
+insert into Order_Items values
 (1001, 101, 1),
 (1001, 105, 2),
 (1002, 102, 1),
@@ -72,44 +73,42 @@ INSERT INTO Order_Items VALUES
 (1004, 104, 1),
 (1005, 105, 5);
 
--- =========================
--- ANALYSIS QUERIES
--- =========================
+-- analysis queries
 
--- Top-Selling Products
-SELECT p.name, SUM(oi.quantity) AS total_sold
-FROM Order_Items oi
-JOIN Products p ON oi.product_id = p.product_id
-GROUP BY p.name
-ORDER BY total_sold DESC;
+-- top selling products
+select p.name, sum(oi.quantity) as total_sold
+from Order_Items oi
+join Products p on oi.product_id = p.product_id
+group by p.name
+order by total_sold desc;
 
--- Most Valuable Customers
-SELECT c.name, SUM(p.price * oi.quantity) AS total_spent
-FROM Customers c
-JOIN Orders o ON c.customer_id = o.customer_id
-JOIN Order_Items oi ON o.order_id = oi.order_id
-JOIN Products p ON oi.product_id = p.product_id
-GROUP BY c.name
-ORDER BY total_spent DESC;
+-- most valuable customers
+select c.name, sum(p.price * oi.quantity) as total_spent
+from Customers c
+join Orders o on c.customer_id = o.customer_id
+join Order_Items oi on o.order_id = oi.order_id
+join Products p on oi.product_id = p.product_id
+group by c.name
+order by total_spent desc;
 
---  Monthly Revenue
-SELECT 
-    DATE_FORMAT(o.date, '%Y-%m') AS month,
-    SUM(p.price * oi.quantity) AS revenue
-FROM Orders o
-JOIN Order_Items oi ON o.order_id = oi.order_id
-JOIN Products p ON oi.product_id = p.product_id
-GROUP BY month
-ORDER BY month;
+-- monthly revenue
+select 
+    date_format(o.order_date, '%Y-%m') as month,
+    sum(p.price * oi.quantity) as revenue
+from Orders o
+join Order_Items oi on o.order_id = oi.order_id
+join Products p on oi.product_id = p.product_id
+group by month
+order by month;
 
--- Category-wise Sales
-SELECT p.category, SUM(oi.quantity) AS total_sales
-FROM Products p
-JOIN Order_Items oi ON p.product_id = oi.product_id
-GROUP BY p.category;
+-- category wise sales
+select p.category, sum(oi.quantity) as total_sales
+from Products p
+join Order_Items oi on p.product_id = oi.product_id
+group by p.category;
 
---  Inactive Customers (no orders)
-SELECT c.name
-FROM Customers c
-LEFT JOIN Orders o ON c.customer_id = o.customer_id
-WHERE o.order_id IS NULL;
+-- inactive customers (with no orders )
+select c.name
+from Customers c
+left join Orders o on c.customer_id = o.customer_id
+where o.order_id is null;
